@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+
+    app:
+        build: 
+            context: .docker/app
+        image: rh-dev-app
+        container_name: rh-dev-app
+        ports:
+            - "9000:9000"        
+        volumes:
+            - "./site:/usr/share/nginx/html/"
+        networks:
+            - app-network
+        # depends_on:
+        #     - sql-server-db
+
+    nginx:
+        build: 
+            context: .docker/nginx
+        image: rh-dev-nginx
+        container_name: rh-dev-nginx
+        restart: always
+        tty: true
+        ports:
+            - "80:80"
+        volumes:
+            - "./site:/usr/share/nginx/html/"
+        networks:
+            - app-network
+        depends_on:
+            - app
+
+    # db:
+    #     container_name: rh-dev-db
+    #     image: mcr.microsoft.com/mssql/server:2019-latest
+    #     ports:
+    #         - "1433:1433"
+    #     environment:
+    #         - ACCEPT_EULA=Y
+    #         - SA_PASSWORD=Pass@Word
+    #     # env_file:
+    #     #     - .docker/data/sqlserver.env
+    #     #     - .docker/data/sapassword.env
+    #     volumes:
+    #         - .docker/database/mssql/data:/var/opt/mssql/data
+    #         - .docker/database/mssql/log:/var/opt/mssql/log
+    #     networks:
+    #         - app-network
+
+networks:
+    app-network:
+        driver: bridge
